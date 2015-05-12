@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1430967418 source:c:\users\╪нсю\documents\library\library\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<malloc.h>
+	<conio.h>
+
+1431418743 source:c:\library\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<malloc.h>
+	<time.h>
+
