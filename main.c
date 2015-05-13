@@ -3,6 +3,7 @@
 #include <string.h>
 #include <malloc.h>
 #include <time.h>
+#include <windows.h>
 
 //定义系统用户信息结构
 struct sysuser
@@ -41,12 +42,18 @@ int search_by_category(struct book *head, char *category);
 //测试成功
 void print_main_title()
 {
+    time_t time_login;
+    struct tm *p;
+    time(&time_login);
+    p = gmtime(&time_login);
+
     printf("================================================================================");
     printf("                                                                                ");
     printf("                                                                                ");
     printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v0.1                             ");
+    printf("                           欢迎使用图书管理系统v0.2                             ");
     printf("                                   国人原创                                     ");
+    printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
     printf("                                                                                ");
     printf("                                                                                ");
     printf("================================================================================");
@@ -423,11 +430,15 @@ void print_all_book(struct book *head)
 {
     struct book *p;
     p = head->next;
-    while(p->next != NULL)
+    do
     {
         print_booknode(p);
         p = p->next;
     }
+    while(p->next != NULL);
+    printf("                  按任意键返回登录菜单...");
+    char ch;
+    ch = getch();
 }
 
 //主函数
@@ -435,7 +446,7 @@ int main()
 {
 
     //登录
-    int login_temp;
+    char login_temp;
 loop:
     print_main_title();
     printf("\n\n");
@@ -444,22 +455,22 @@ loop:
     printf("                        3、关于/跳过登录\n");
     printf("                        4、退出\n");
     printf("\n\n");
-    printf("                      请输入选项，按回车键结束：");
-    scanf("%d",&login_temp);
+    printf("                      请输入选项前的编号，按回车键结束：");
+    scanf("%c",&login_temp);
     int login_check_temp = 1;
     char login_exit_temp;
     switch(login_temp)
     {
-    case 1:
+    case '1':
         create_user();
         goto loop;
-    case 2:
+    case '2':
         login_check_temp = login();
         if(login_check_temp == 0)goto loop;
         break;
-    case 3:
+    case '3':
         break;
-    case 4:
+    case '4':
         printf("\n");
         printf("                      您确定要退出吗？\n");
         printf("                      按任意键退出，按n返回\n");
@@ -470,34 +481,36 @@ loop:
             goto loop;
         }
         else exit(0);
+    default:
+        system("CLS");
+        goto loop;
     }
     //成功登录则继续执行程序
 
     struct book *head;
-    int menu_select, search_select, admin_select, borrow_select, modify_select, admin_delete_select;
+    char search_select, admin_select, borrow_select, modify_select, admin_delete_select;
+    char menu_select;
     while(1)
     {
         head = make_linklist();
 main_loop:
         system("CLS");
-        printf("================================================================================");
-        printf("                                                                                ");
-        printf("                                                                                ");
-        printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v1.0                             ");
-        printf("                                                                                ");
-        printf("                                                                                ");
-        printf("                                                                                ");
-        printf("================================================================================");
+        print_main_title();
         printf("\n\n");
-        printf("1、借书\n2、还书\n3、查找\n4、显示所有书本\n5、管理员选项\n6、退出\n");
-
+        printf("                        1、借书\n");
+        printf("                        2、还书\n");
+        printf("                        3、查找\n");
+        printf("                        4、显示所有书本\n");
+        printf("                        5、管理员选项\n");
+        printf("                        6、退出\n");
+        printf("\n");
+        printf("                   请输入要使用功能的编号，按回车进入：");
 
         time_t timep;
         struct tm *p;
         time(&timep);
         p = gmtime(&timep);
-        //p =localltime(&timep);
+        /*//p =localltime(&timep);
         printf("Year:  %d\n", 1900+p->tm_year);
         printf("Month:  %d\n", 1+p->tm_mon);
         printf("Day:  %d\n", p->tm_mday);
@@ -507,9 +520,37 @@ main_loop:
         printf("Weekday:  %d\n", p->tm_wday);
         printf("Days:  %d\n", p->tm_yday);
         printf("Isdst:  %d\n", p->tm_isdst);
+*/
+        scanf("%c", &menu_select);
 
-
-        scanf("%d", &menu_select);
+        time_t start, end;
+        int a;
+        start = time(NULL);
+        end = time(NULL);
+/*
+        if (menu_select < '0'){
+            if(menu_select > '6')
+        {
+            printf("输入错误！");
+            for(a = 1; a <= 3; a++)
+            {
+                while(end - start < a)
+                    end = time(NULL);
+            }
+            goto main_loop;
+        }
+            else
+            {
+                printf("输入错误！");
+            for(a = 1; a <= 3; a++)
+            {
+                while(end - start < a)
+                    end = time(NULL);
+            }
+            goto main_loop;
+            }
+        }
+        */
         struct book *t;
         int i;
         int temp = 0;
@@ -520,7 +561,7 @@ main_loop:
 
         switch(menu_select)
         {
-        case 1://借书
+        case '1'://借书
             printf("1、名字2、编号3、分类4、返回");
             scanf("%d", &borrow_select);
             switch(borrow_select)
@@ -535,9 +576,9 @@ main_loop:
                 goto main_loop;
             }
             break;
-        case 2://还书
+        case '2'://还书
             break;
-        case 3://查找
+        case '3'://查找
             printf("1、名字2、编号3、分类4、借出时间5、返回");
             scanf("%d", &search_select);
             switch(search_select)
@@ -593,7 +634,10 @@ main_loop:
             }
             break;
 
-        case 5://管理员
+        case '4':
+            print_all_book(head);
+            break;
+        case '5'://管理员
             switch(admin_select)
             {
             case 1://录入
@@ -607,20 +651,20 @@ main_loop:
                 {
                 case 1://输入名称
                     printf("请输入要查找的书的编号,按回车结束：");
-                scanf("%d", &temp);
-                t = search_by_number(head, temp);
-                if (t == NULL)
-                {
-                    printf("没有找到该书！\n");
-                    printf("按任意键返回主菜单...\n");
-                    getch();
-                    break;
-                }
+                    scanf("%d", &temp);
+                    t = search_by_number(head, temp);
+                    if (t == NULL)
+                    {
+                        printf("没有找到该书！\n");
+                        printf("按任意键返回主菜单...\n");
+                        getch();
+                        break;
+                    }
                 case 2://输入编号
                     break;
                 }
 
-                //对t进行修改
+            //对t进行修改
 
             case 3://删除
                 printf("1、名称2、编号3、返回\n");
@@ -646,7 +690,8 @@ main_loop:
                 break;
             }
             break;
-        case 6://退出
+        case '6'://退出
+            {
             printf("\n");
             printf("                      您确定要退出吗？\n");
             printf("                      按任意键退出，按n返回\n");
@@ -657,6 +702,9 @@ main_loop:
                 goto main_loop;
             }
             else return 1;
+            }
+        default:
+            goto main_loop;
         }
     }
 }
