@@ -51,7 +51,7 @@ void print_main_title()
     printf("                                                                                ");
     printf("                                                                                ");
     printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v0.3                             ");
+    printf("                           欢迎使用图书管理系统v1.0                             ");
     printf("                                   国人原创                                     ");
     printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
     printf("                                                                                ");
@@ -251,10 +251,8 @@ struct book *make_linklist()
         new_book_init = (struct book *)malloc(sizeof(struct book));
         fscanf(fp, "%d", &new_book_init->number);
         ch = fgetc(fp);
-        fscanf(fp, "%s", new_book_init->name);
-        ch = fgetc(fp);
-        fscanf(fp, "%s", new_book_init->category);
-        ch = fgetc(fp);
+        fscanf(fp, "%[^\n]%*c", new_book_init->name);
+        fscanf(fp, "%[^\n]%*c", new_book_init->category);
         fscanf(fp, "%d", &new_book_init->lent);
         ch = fgetc(fp);
         fscanf(fp, "%d", &new_book_init->year);
@@ -283,8 +281,8 @@ void override_to_file(struct book *head)
     while(p->next != NULL)
     {
         fprintf(fp, "%d ", p->number);
-        fprintf(fp, "%s ", p->name);
-        fprintf(fp, "%s ", p->category);
+        fprintf(fp, "%s\n", p->name);
+        fprintf(fp, "%s\n", p->category);
         fprintf(fp, "%d ", p->lent);
         fprintf(fp, "%d ", p->year);
         fprintf(fp, "%d ", p->month);
@@ -357,21 +355,24 @@ int search_by_category(struct book *head, char *category)
 
 //输出该书的所有信息
 //测试成功！
+
+void print_booklist_title()
+{
+    printf("您查找的书的资料是：\n");
+    printf("编号                书名                          分类        借出时间       \n");
+}
+
 void print_booknode(struct book *t)
 {
+
     if(t != NULL)
     {
-        printf("您查找的书的资料是：\n");
-        printf("书名：%s\n", t->name);
-        printf("编号：%d\n", t->number);
-        printf("分类：%s\n", t->category);
-        printf("是否已借：");
+        printf("%-20d%-30s%-10s",t->number, t->name, t->category);
         if(t->lent == 1)
         {
-            printf("是\n");
-            printf("借出日期：%d年%d月%d日",t->year,t->month,t->day);
+            printf("  %d年%d月%d日\n",t->year,t->month,t->day);
         }
-        else printf("否\n");
+        else printf("  在库\n");
     }
     else
     {
@@ -407,17 +408,19 @@ int input_new_book()
     printf("请输入新书的编号：");
     scanf("%d",&newbook.number);
     printf("请输入新书的名字：");
-    scanf("%s",newbook.name);
+    fflush(stdin);
+    scanf("%[^'\n']",newbook.name);
+    fflush(stdin);
     printf("请输入新书的分类：");
-    scanf("%s",newbook.category);
+    scanf("%[^'\n']",newbook.category);
     newbook.lent = 0;
     newbook.year = 0;
     newbook.month = 0;
     newbook.day = 0;
     newbook.next = NULL;
     fprintf(fp,"%d ",newbook.number);
-    fprintf(fp,"%s ",newbook.name);
-    fprintf(fp,"%s ",newbook.category);
+    fprintf(fp,"%s\n",newbook.name);
+    fprintf(fp,"%s\n",newbook.category);
     fprintf(fp,"%d %d %d %d\n",newbook.lent,newbook.year,newbook.month,newbook.day);
     fclose(fp);
     printf("录入成功！即将返回主菜单...\n");
@@ -426,19 +429,29 @@ int input_new_book()
 
 //输出所有书
 //测试成功！
-void print_all_book(struct book *head)
+int print_all_book(struct book *head)
 {
+    system("CLS");
+    char ch;
     struct book *p;
     p = head->next;
+    if (p == NULL)
+    {
+        printf("数据库中没有书本！\n");
+        printf("                  按任意键返回主菜单...");
+        ch = getch();
+        return 0;
+    }
+    print_booklist_title();
     do
     {
         print_booknode(p);
         p = p->next;
     }
     while(p->next != NULL);
-    printf("                  按任意键返回登录菜单...");
-    char ch;
+    printf("                  按任意键返回主菜单...");
     ch = getch();
+    return 1;
 }
 
 //主函数
@@ -508,51 +521,15 @@ main_loop:
         printf("\n");
         printf("                   请输入要使用功能的编号，按回车进入：");
 
-        /*
-//p =localltime(&timep);
-        printf("Year:  %d\n", 1900+time_p->tm_year);
-        printf("Month:  %d\n", 1+time_p->tm_mon);
-        printf("Day:  %d\n", time_p->tm_mday);
-        printf("Hour:  %d\n", 8 + time_p->tm_hour);
-        printf("Minute:  %d\n", time_p->tm_min);
-        printf("Second:  %d\n",  time_p->tm_sec);
-        printf("Weekday:  %d\n", time_p->tm_wday);
-        printf("Days:  %d\n", time_p->tm_yday);
-        printf("Isdst:  %d\n", time_p->tm_isdst);
-*/
         scanf("%c", &menu_select);
 
-/*
-        if (menu_select < '0'){
-            if(menu_select > '6')
-        {
-            printf("输入错误！");
-            for(a = 1; a <= 3; a++)
-            {
-                while(end - start < a)
-                    end = time(NULL);
-            }
-            goto main_loop;
-        }
-            else
-            {
-                printf("输入错误！");
-            for(a = 1; a <= 3; a++)
-            {
-                while(end - start < a)
-                    end = time(NULL);
-            }
-            goto main_loop;
-            }
-        }
-        */
         struct book *t;
         int i;
         int temp = 0;
         char name_temp[30];
         for(i = 0; i < 30; i++) name_temp[i] = 0;
         char category_temp[10];
-        for(i = 0; i < 10; i++) name_temp[i] = 0;
+        for(i = 0; i < 10; i++) category_temp[i] = 0;
 
         time_t timep;
         struct tm *time_p;
@@ -569,7 +546,7 @@ main_loop:
             printf("                        1、根据名字查找\n\n");
             printf("                        2、根据编号查找\n\n");
             printf("                        3、返回\n\n");
-            printf("                        请输入对应功能的编号，按回车结束：");
+            printf("                        请输入对应功能的编号，按回车进入：");
             scanf("%d", &borrow_select);
             switch(borrow_select)
             {
@@ -622,10 +599,10 @@ main_loop:
             break;
         case '3'://查找
             printf("1、名字2、编号3、分类4、借出时间5、返回");
-            scanf("%c", &search_select);
+            scanf("%d", &search_select);
             switch(search_select)
             {
-            case '1'://根据名字
+            case 1://根据名字
                 printf("请输入要查找的书名,按回车结束：");
                 scanf("%s", name_temp);
                 t = search_by_name(head, name_temp);
@@ -644,7 +621,7 @@ main_loop:
                     break;
                 }
                 break;
-            case '2'://根据编号
+            case 2://根据编号
                 //测试成功，不要修改！
                 printf("请输入要查找的书的编号,按回车结束：");
                 scanf("%d", &temp);
@@ -664,29 +641,45 @@ main_loop:
                     break;
                 }
                 break;
-            case '3'://根据分类
+            case 3://根据分类
                 printf("请输入要查找的分类,按回车结束：");
                 scanf("%s", category_temp);
                 search_by_category(head, category_temp);
                 break;
-            case '4'://根据借出时间
+            case 4://根据借出时间
                 break;
             default://返回上一级
                 break;
             }
+            break;
 
         case '4':
             print_all_book(head);
             break;
         case '5'://管理员
+            system("CLS");
+            print_main_title();
+            printf("\n\n");
+            printf("                        1、录入新书到数据库\n");
+            printf("                        2、修改已有的书的数据\n");
+            printf("                        3、从数据库中删除书\n");
+            printf("                        4、返回上一级\n");
+            printf("\n\n");
+            printf("                        请输入对应功能的编号，按回车进入：");
+            scanf("%d", &admin_select);
             switch(admin_select)
             {
             case 1://录入
                 input_new_book();
                 break;
             case 2://修改
+                system("CLS");
+                print_main_title();
+                printf("\n\n");
+                printf("在这里您可以修改数据库中书的编号、名称、分类和借出时间\n");
                 printf("系统需定位您要修改数据的书：\n");
-                printf("1、输入名称查找2、输入编号查找");
+                printf("1、输入名称查找\n");
+                printf("2、输入编号查找\n");
                 scanf("%d", &modify_select);
                 switch(modify_select)
                 {
@@ -696,12 +689,26 @@ main_loop:
                     t = search_by_number(head, temp);
                     if (t == NULL)
                     {
-                        printf("没有找到该书！\n");
+                        printf("没有找到该书！请核对后再重新输入\n");
                         printf("按任意键返回主菜单...\n");
                         getch();
                         break;
                     }
+                    else
+                    {
+                        printf("请输入新书的名称：");
+                        printf("名称需在30个字符以内，一个汉字为两个字符\n");
+                        gets(name_temp);
+                        strcpy(t->name, name_temp);
+                        override_to_file(head);
+                        printf("修改成功！");
+                        print_booklist_title();
+                        print_booknode(t);
+                    }
+                    break;
                 case 2://输入编号
+                    break;
+                default:
                     break;
                 }
 
@@ -728,7 +735,8 @@ main_loop:
                 case 3:
                     break;
                 }
-                break;
+                default:
+                    break;
             }
             break;
         case '6'://退出
