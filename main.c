@@ -51,7 +51,7 @@ void print_main_title()
     printf("                                                                                ");
     printf("                                                                                ");
     printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v0.2                             ");
+    printf("                           欢迎使用图书管理系统v0.3                             ");
     printf("                                   国人原创                                     ");
     printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
     printf("                                                                                ");
@@ -488,8 +488,10 @@ loop:
     //成功登录则继续执行程序
 
     struct book *head;
-    char search_select, admin_select, borrow_select, modify_select, admin_delete_select;
+    int search_select, admin_select, borrow_select, modify_select, admin_delete_select;
     char menu_select;
+    char ch;
+    char str_tmp[100];
     while(1)
     {
         head = make_linklist();
@@ -506,27 +508,20 @@ main_loop:
         printf("\n");
         printf("                   请输入要使用功能的编号，按回车进入：");
 
-        time_t timep;
-        struct tm *p;
-        time(&timep);
-        p = gmtime(&timep);
-        /*//p =localltime(&timep);
-        printf("Year:  %d\n", 1900+p->tm_year);
-        printf("Month:  %d\n", 1+p->tm_mon);
-        printf("Day:  %d\n", p->tm_mday);
-        printf("Hour:  %d\n", 8 + p->tm_hour);
-        printf("Minute:  %d\n", p->tm_min);
-        printf("Second:  %d\n",  p->tm_sec);
-        printf("Weekday:  %d\n", p->tm_wday);
-        printf("Days:  %d\n", p->tm_yday);
-        printf("Isdst:  %d\n", p->tm_isdst);
+        /*
+//p =localltime(&timep);
+        printf("Year:  %d\n", 1900+time_p->tm_year);
+        printf("Month:  %d\n", 1+time_p->tm_mon);
+        printf("Day:  %d\n", time_p->tm_mday);
+        printf("Hour:  %d\n", 8 + time_p->tm_hour);
+        printf("Minute:  %d\n", time_p->tm_min);
+        printf("Second:  %d\n",  time_p->tm_sec);
+        printf("Weekday:  %d\n", time_p->tm_wday);
+        printf("Days:  %d\n", time_p->tm_yday);
+        printf("Isdst:  %d\n", time_p->tm_isdst);
 */
         scanf("%c", &menu_select);
 
-        time_t start, end;
-        int a;
-        start = time(NULL);
-        end = time(NULL);
 /*
         if (menu_select < '0'){
             if(menu_select > '6')
@@ -559,31 +554,78 @@ main_loop:
         char category_temp[10];
         for(i = 0; i < 10; i++) name_temp[i] = 0;
 
+        time_t timep;
+        struct tm *time_p;
+        time(&timep);
+        time_p = gmtime(&timep);
+
         switch(menu_select)
         {
         case '1'://借书
-            printf("1、名字2、编号3、分类4、返回");
+        borrow_loop:
+            system("CLS");
+            print_main_title();
+            printf("\n\n");
+            printf("                        1、根据名字查找\n\n");
+            printf("                        2、根据编号查找\n\n");
+            printf("                        3、返回\n\n");
+            printf("                        请输入对应功能的编号，按回车结束：");
             scanf("%d", &borrow_select);
             switch(borrow_select)
             {
             case 1:
+                printf("请输入要查找的书名,按回车结束：");
+                scanf("%s", name_temp);
+                t = search_by_name(head, name_temp);
+                time_t timep;
+
+                if (t != NULL)
+                {
+                    print_booknode(t);
+                    if(t->lent == 0)
+                    {
+                        printf("您确定要借这本书吗？1：是 2：否");
+                        scanf("%d", &temp);
+                        if(temp == 1)
+                        {
+                            t->lent = 1;
+                            t->year = 1900 + time_p->tm_year;
+                            t->month = time_p->tm_mon;
+                            t->day = time_p->tm_mday;
+                            print_booknode(t);
+                            printf("借出成功！");
+                            override_to_file(head);
+                        }
+                    }
+                    //else break;
+                    printf("按任意键返回主菜单...\n");
+                    getch();
+                    break;
+                }
+                else
+                {
+                    printf("没有找到该书！\n");
+                    printf("按任意键返回主菜单...\n");
+                    getch();
+                    break;
+                }
                 break;
             case 2:
                 break;
             case 3:
                 break;
-            case 4:
-                goto main_loop;
+            default:
+                gets(str_tmp);
+                goto borrow_loop;
             }
-            break;
         case '2'://还书
             break;
         case '3'://查找
             printf("1、名字2、编号3、分类4、借出时间5、返回");
-            scanf("%d", &search_select);
+            scanf("%c", &search_select);
             switch(search_select)
             {
-            case 1://根据名字
+            case '1'://根据名字
                 printf("请输入要查找的书名,按回车结束：");
                 scanf("%s", name_temp);
                 t = search_by_name(head, name_temp);
@@ -602,7 +644,7 @@ main_loop:
                     break;
                 }
                 break;
-            case 2://根据编号
+            case '2'://根据编号
                 //测试成功，不要修改！
                 printf("请输入要查找的书的编号,按回车结束：");
                 scanf("%d", &temp);
@@ -622,17 +664,16 @@ main_loop:
                     break;
                 }
                 break;
-            case 3://根据分类
+            case '3'://根据分类
                 printf("请输入要查找的分类,按回车结束：");
                 scanf("%s", category_temp);
                 search_by_category(head, category_temp);
                 break;
-            case 4://根据借出时间
+            case '4'://根据借出时间
                 break;
             default://返回上一级
                 break;
             }
-            break;
 
         case '4':
             print_all_book(head);
