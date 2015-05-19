@@ -53,7 +53,7 @@ void print_main_title()
     printf("                                                                                ");
     printf("                                                                                ");
     printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v1.1                             ");
+    printf("                           欢迎使用图书管理系统v1.2                             ");
     printf("                                   国人原创                                     ");
     printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
     printf("                                                                                ");
@@ -323,7 +323,7 @@ struct book *search_by_name(struct book *head, char *name)
     p = head->next;
     if (p == NULL)
         return NULL;
-    while(p -> next != NULL)
+    while(p != NULL)
     {
         if (strcmp(name, p->name) == 0)
             return p;
@@ -395,15 +395,27 @@ void print_booknode(struct book *t)
 //测试成功！
 struct book *delete_book(struct book *head, struct book *p)
 {
-    struct book *q;
-    q = head;
-    while(q->next != p)
+    printf("警告！该操作不可恢复！\n");
+    printf("是否继续？\n");
+    printf("y：是  任意键：否\n");
+    printf("请输入对应选项，按回车继续：");
+    char ch;
+    scanf("%c", &ch);
+    if (ch == 'y')
     {
-        q = q->next;
+        struct book *q;
+        q = head;
+        while(q->next != p)
+        {
+            q = q->next;
+        }
+        q->next = p->next;
+        free(p);
+        return head;
     }
-    q->next = p->next;
-    free(p);
-    return head;
+    else
+        return head;
+
 }
 
 //输入新的书
@@ -411,8 +423,10 @@ struct book *delete_book(struct book *head, struct book *p)
 int input_new_book()
 {
     FILE *fp;
-    fp = fopen("library.txt", "a+");
     struct book newbook;
+input_loop:
+    fp = fopen("library.txt", "a+");
+    system("ClS");
     printf("请输入新书的编号：");
     scanf("%d",&newbook.number);
     printf("请输入新书的名字：");
@@ -431,8 +445,20 @@ int input_new_book()
     fprintf(fp,"%s\n",newbook.category);
     fprintf(fp,"%d %d %d %d\n",newbook.lent,newbook.year,newbook.month,newbook.day);
     fclose(fp);
-    printf("录入成功！即将返回主菜单...\n");
-    return 1;
+    printf("录入成功！\n");
+    printf("是否继续录入？\n");
+    printf("y：是  n：否\n");
+    fflush(stdin);
+    char ch;
+    scanf("%c", &ch);
+    if (ch == 'y')
+        goto input_loop;
+    else
+    {
+        printf("即将在3秒后返回主菜单...");
+        Sleep(3000);
+        return 1;
+    }
 }
 
 //输出所有书
@@ -529,7 +555,7 @@ loop:
     //成功登录则继续执行程序
 
     struct book *head;
-    int search_select, admin_select, borrow_select, modify_select, admin_delete_select;
+    int search_select, admin_select, borrow_select, back_select, modify_select, admin_delete_select;
     char menu_select;
     char ch;
     char str_tmp[100];
@@ -546,7 +572,7 @@ main_loop:
         printf("                        4、显示所有书本\n");
         printf("                        5、管理员选项\n");
         printf("                        6、退出\n");
-        printf("                        7、授权\n");
+        //printf("                        7、授权\n");
         printf("\n");
         printf("                   请输入要使用功能的编号，按回车进入：");
 
@@ -587,6 +613,8 @@ main_loop:
 
                 if (t != NULL)
                 {
+                    system("CLS");
+                    print_booklist_title();
                     print_booknode(t);
                     if(t->lent == 0)
                     {
@@ -598,7 +626,7 @@ main_loop:
                             t->year = 1900 + time_p->tm_year;
                             t->month = time_p->tm_mon;
                             t->day = time_p->tm_mday;
-                            print_booknode(t);
+                            //print_booknode(t);
                             printf("借出成功！");
                             override_to_file(head);
                         }
@@ -662,6 +690,7 @@ main_loop:
             break;
         case '2'://还书
             system("CLS");
+            /*
             if (license_get == 0){
             printf("对不起，该功能尚未开放!\n\n");
             printf("亲爱的用户你好，您现在使用的是免费版本，仅包含完全版的部分功能。\n该功能需要购买获得授权以继续使用，购买金额为10元。\n");
@@ -677,6 +706,28 @@ main_loop:
                 printf("骗你的哈哈哈哈哈哈\nby 叶嘉永\n");
                 system("PAUSE");
             }
+            */
+            system("CLS");
+            printf("该功能还在调试中......\n\n\n\n");
+
+            printf("系统需要定位您要还的书：\n");
+            printf("1、根据书名查找\n");
+            printf("2、根据编号查找\n");
+            printf("3、返回上一级\n");
+            printf("请输入对应功能前的编号，按回车继续：");
+
+            scanf("%d", &back_select);
+
+            switch(back_select)
+            {
+            case 1://书名
+                break;
+            case 2://编号
+                break;
+            default:
+                break;
+            }
+
             break;
         case '3'://查找
 
@@ -771,6 +822,8 @@ main_loop:
                 printf("系统需定位您要修改数据的书：\n");
                 printf("1、输入名称查找\n");
                 printf("2、输入编号查找\n");
+                printf("3、返回\n");
+                printf("请输入对应功能前的编号，按回车继续：");
                 scanf("%d", &modify_select);
                 switch(modify_select)
                 {
@@ -808,24 +861,65 @@ main_loop:
             case 3://删除
                 system("CLS");
                 print_main_title();
-                printf("                        1、名称\n\n");
-                printf("                        2、编号\n\n");
+                printf("\n                           警告！该操作不可恢复！\n\n");
+                printf("                        系统需定位您要删除的书：\n\n");
+                printf("                        1、根据名称查找\n\n");
+                printf("                        2、根据编号查找\n\n");
                 printf("                        3、返回\n\n");
+                printf("                        请输入对应选项的编号，按回车继续：");
                 scanf("%d", &admin_delete_select);
                 switch(admin_delete_select)
                 {
                 case 1://按名称删除
+                    system("CLS");
+                    printf("                           警告！该操作不可恢复！\n\n");
+                    printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
+                    printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
                     printf("请输入要删除的书的名称，按回车结束：");
                     scanf("%s", name_temp);
+                    if (name_temp[0] == '@')
+                    {
+                        printf("\n\n即将返回主菜单\n");
+                        system("PAUSE");
+                        break;
+                    }
                     t = search_by_name(head, name_temp);
-                    head = delete_book(head, t);
-                    override_to_file(head);
+                    if (t != NULL)
+                    {
+                        head = delete_book(head, t);
+                        override_to_file(head);
+                    }
+                    else
+                    {
+                        printf("没有找到此书！\n");
+                        system("PAUSE");
+                    }
+                    break;
                 case 2://按编号删除
-                    printf("请输入要删除的书的编号，按回车结束：");
+                    system("CLS");
+                    printf("                           警告！该操作不可恢复！\n\n");
+                    printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
+                    printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
+                    printf("请输入要删除的书的名称，按回车结束：");
+                    scanf("%s", name_temp);
+                    if (name_temp[0] == '@')
+                    {
+                        printf("\n\n即将返回主菜单\n");
+                        system("PAUSE");
+                        break;
+                    }
                     scanf("%d", &temp);
                     t = search_by_number(head, temp);
-                    head = delete_book(head, t);
-                    override_to_file(head);
+                    if (t != NULL)
+                    {
+                        head = delete_book(head, t);
+                        override_to_file(head);
+                    }
+                    else
+                    {
+                        printf("没有找到此书！\n");
+                        system("PAUSE");
+                    }
                     break;
                 case 3:
                     break;
@@ -869,37 +963,6 @@ main_loop:
 
 /*
 
-{
-    head = make_linklist();
-    system("CLS");
-
-    //输出菜单
-
-
-    scanf("%d", &menu_select);
-    int y;
-    int m;
-    int d;
-
-    struct book *t;
-    int i;
-    int temp = 0;
-    char name_temp[30];
-    for(i = 0; i < 30; i++) name_temp[i] = 0;
-    char category_temp[10];
-    for(i = 0; i < 10; i++) name_temp[i] = 0;
-
-    switch(menu_select)
-    {
-    case 1:
-        input_new_book();
-        break;
-    case 2:
-        printf("请输入书的名称，按回车结束：");
-        scanf("%s", name_temp);
-        t = search_by_name(head, name_temp);
-        t->lent = 1;
-        //printf("")
         break;
     case 3:
         printf("注意！此操作不可恢复！\n");
@@ -924,52 +987,6 @@ main_loop:
             break;
         }
         break;
-    case 4:
-        //测试成功！
-        printf("请输入要查找的书名,按回车结束：");
-        scanf("%s", name_temp);
-        t = search_by_name(head, name_temp);
-        if (t != NULL)
-        {
-            print_booknode(t);
-            printf("按任意键返回主菜单...\n");
-            getch();
-            break;
-        }
-        break;
-    case 5:
-        printf("请输入要查找的分类,按回车结束：");
-        scanf("%s", category_temp);
-        search_by_category(head, category_temp);
-        break;
-    case 6:
-        //测试成功，不要修改！
-        printf("请输入要查找的书的编号,按回车结束：");
-        scanf("%d", &temp);
-        t = search_by_number(head, temp);
-        print_booknode(t);
-        printf("按任意键返回主菜单...\n");
-        getch();
-        break;
-    case 7:
-        break;
-    case 8:
-        printf("1、列出所有书籍\n2、按编号顺序重新整理图书\n3、覆盖链表到文件\n4、获取当前日期");
-        scanf("%d",&temp);
-        switch(temp)
-        {
-        case 1:
-            print_all_book(head);
-            break;
-        case 3:
-            override_to_file(head);
-            break;
-            //case 4:
-            //_getsystime
-        }
-        break;
-    case 9:
-        return 1;
-    }
-}
+
+
 */
