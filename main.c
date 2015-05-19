@@ -5,7 +5,10 @@
 #include <time.h>
 #include <windows.h>
 
+//全局变量
 int license_get = 0;
+int check_login_success = 0;//在标题显示用户名称会用到
+char user_name[20];//在标题显示用户名称会用到
 
 //定义系统用户信息结构
 struct sysuser
@@ -27,15 +30,7 @@ struct book
     struct book *next;
 };
 
-struct time
-{
-    int year;
-    int month;
-    int day;
-};
 
-int login();
-int checkUserValid(struct sysuser *user);
 void save_to_file(FILE *fp, struct book *head);
 struct book *search_by_number(struct book *head, int number);
 int search_by_category(struct book *head, char *category);
@@ -49,16 +44,33 @@ void print_main_title()
     time(&time_login);
     p = gmtime(&time_login);
 
-    printf("================================================================================");
-    printf("                                                                                ");
-    printf("                                                                                ");
-    printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v1.2                             ");
-    printf("                                   国人原创                                     ");
-    printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
-    printf("                                                                                ");
-    printf("                                                                                ");
-    printf("================================================================================");
+    if(check_login_success == 0)
+    {
+        printf("================================================================================");
+        printf("欢迎您，亲爱的用户！\n");
+        //printf("                                                                                ");
+        printf("                                                                                ");
+        printf("                           欢迎使用图书管理系统v2.0                             ");
+        printf("                               肝你麻痹起来嗨                                     ");
+        printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
+        printf("                                                                                ");
+        printf("                                                                                ");
+        printf("================================================================================");
+    }
+    else
+    {
+        printf("================================================================================");
+        printf("欢迎您，%s！\n",user_name);
+        //printf("                                                                                ");
+        printf("                                                                                ");
+        printf("                           欢迎使用图书管理系统v1.3                             ");
+        printf("                                肝你麻痹起来嗨                                     ");
+        printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
+        printf("                                                                                ");
+        printf("                                                                                ");
+        printf("================================================================================");
+    }
+
 }
 
 struct book *insert_list(struct book *head, struct book *element)
@@ -78,36 +90,83 @@ int create_user()
 {
     struct sysuser su;
     FILE *fp;
-create_loop:
     fp = fopen("user.txt", "a");
     if (fp == NULL) fopen("user.txt", "w");
+create_loop:
     system("CLS");
-    print_main_title();
-    printf("\n\n");
-    printf("                  请输入新的账号，按回车结束\n");
-    printf("账号的长度为");
+    //print_main_title();
+    printf("\n");
+    printf("===================================注册新用户===================================");
+    printf("\n");
+    printf("                                    请注意：\n");
+    printf("    账号的长度为20位，可使用英文，汉字或数字，一个汉字字符为两位，不允许空格\n");
+    printf("         密码的长度为8位，仅允许使用英文字符或数字，不允许空格\n\n");
+    printf("                  为保护您的隐私，输入的密码不会显示在屏幕上\n\n");
+    printf("                  请输入新的账号，按回车结束：");
     scanf("%s", su.username);
     printf("\n");
-    printf("                  请输入新的密码，按回车结束\n");
-    printf("         密码的长度为8位，仅允许使用英文字符或数字，不允许空格：");
+    printf("                  请输入新的密码，按回车结束：");
     //scanf("%s", su.password);
     int i=0;
-    while(i < 8&&(su.password[i]=getch())!='\r')
+    while(0 < i < 8&&(su.password[i]=getch())!='\r')
     {
         if(su.password[i]=='\b')
         {
-            i--;
+            if(i <= 0);
+            else i--;
         }
         else
         {
             i++;
+            if (i > 8)
+            {
+                printf("\n             注意：已经达到8位字符上限，本次键入的字符将无效！\n");
+                i = i - 1;
+            }
         }
     }
     su.password[i]='\0';
+
+    i = 0;
+    char check_password[8];
+    for(i = 0; i < 8; i++)
+        check_password[i] = '\0';
+    i = 0;
+    printf("\n\n                  请再输入一次密码，按回车结束：");
+    while(0 < i < 8&&(check_password[i]=getch())!='\r')
+    {
+        if(check_password[i]=='\b')
+        {
+            if(i <= 0);
+            else i--;
+        }
+        else
+        {
+            i++;
+            if (i > 8)
+            {
+                printf("\n             注意：已经达到8位字符上限，本次键入的字符将无效！\n");
+                i = i - 1;
+            }
+        }
+    }
+    check_password[i]='\0';
+    int check = 1;
+    if (strcmp(check_password, su.password) == 0);
+    else
+    {
+        printf("\n\n                  两次密码输入不一致！请重新注册...\n");
+        Sleep(2000);
+        goto create_loop;
+    }
+
     fprintf(fp, "%s %s", su.username, su.password);
     fprintf(fp,"\n");
     fclose(fp);
+    printf("\n\n");
     printf("                  注册成功！\n\n");
+    printf("                  请记住您的用户名：%s\n", su.username);
+    printf("                  密码：********\n");
     printf("                  按任意键返回登录菜单...");
     char ch;
     ch = getch();
@@ -132,23 +191,28 @@ int login()
     printf("                       该密码不会显示在屏幕上:");
     //scanf("%s", su.password);
     int i=0;
-    while(i < 8&&(su.password[i]=getch())!='\r')
+    while(0 < i < 8&&(su.password[i]=getch())!='\r')
     {
         if(su.password[i]=='\b')
         {
-            i--;
+            if(i <= 0);
+            else i--;
         }
         else
         {
             i++;
+            if (i > 8)
+            {
+                printf("\n             注意：已经达到8位字符上限，本次键入的字符将无效！\n");
+                i = i - 1;
+            }
         }
     }
     su.password[i]='\0';
-    //printf("\n你的密码是:%s",su.password);
-
 
     if(checkUserValid(&su) == 1)
     {
+        strcpy(user_name, su.username);
         check = 1;
         printf("\n\n\n");
         printf("                       登录成功！\n");
@@ -161,7 +225,7 @@ int login()
     else
     {
         printf("\n\n\n");
-        printf("                       该用户不存在，请核对后重新输入或注册！\n");
+        printf("                       该用户不存在或密码错误，请核对后重新登录或注册！\n");
         printf("                       如需帮助，请与管理员联系\n");
         printf("                       按任意键返回主菜单...");
         ch = getch();
@@ -508,6 +572,37 @@ int give_license()
     else return 0;
 }
 
+struct book *modify_book(struct book *head, struct book *t)
+{
+    int i;
+    char name_temp[30];
+    for(i = 0; i < 30; i++)
+        name_temp[i] = '\0';
+    i = 0;
+    fflush(stdin);
+    printf("警告！该操作不可修改！\n");
+    printf("1、修改名称\n2、修改编号\n3、什么也不做\n");
+    printf("请输入选项前的编号，按回车进入：");
+    scanf("%d", &i);
+    switch(i)
+    {
+    case 1:
+        printf("请输入新书的名称：");
+        printf("名称需在30个字符以内，一个汉字为两个字符\n");
+        fflush(stdin);
+        gets(name_temp);
+        strcpy(t->name, name_temp);
+        printf("修改成功！");
+        system("PAUSE");
+        return head;
+    case 2:
+        return head;
+    case 3:
+        return head;
+    }
+}
+
+
 //主函数
 int main()
 {
@@ -519,7 +614,7 @@ loop:
     printf("\n\n");
     printf("                        1、注册新用户\n");
     printf("                        2、登录\n");
-    printf("                        3、关于/跳过登录\n");
+    printf("                        3、关于\n");
     printf("                        4、退出\n");
     printf("\n\n");
     printf("                      请输入选项前的编号，按回车键结束：");
@@ -536,7 +631,7 @@ loop:
         if(login_check_temp == 0)goto loop;
         break;
     case '3':
-        break;
+        goto loop;
     case '4':
         printf("\n");
         printf("                      您确定要退出吗？\n");
@@ -552,7 +647,8 @@ loop:
         system("CLS");
         goto loop;
     }
-    //成功登录则继续执行程序
+    //成功登录则修改标志，以改变标题显示
+    check_login_success = 1;
 
     struct book *head;
     int search_select, admin_select, borrow_select, back_select, modify_select, admin_delete_select;
@@ -828,7 +924,8 @@ main_loop:
                 switch(modify_select)
                 {
                 case 1://输入名称
-                    printf("请输入要查找的书的编号,按回车结束：");
+                    fflush(stdin);
+                    printf("请输入要查找的书的名称，按回车结束：");
                     scanf("%d", &temp);
                     t = search_by_number(head, temp);
                     if (t == NULL)
@@ -840,14 +937,9 @@ main_loop:
                     }
                     else
                     {
-                        printf("请输入新书的名称：");
-                        printf("名称需在30个字符以内，一个汉字为两个字符\n");
-                        gets(name_temp);
-                        strcpy(t->name, name_temp);
+                        head = modify_book(head, t);
                         override_to_file(head);
-                        printf("修改成功！");
-                        print_booklist_title();
-                        print_booknode(t);
+                        break;
                     }
                     break;
                 case 2://输入编号
@@ -855,7 +947,7 @@ main_loop:
                 default:
                     break;
                 }
-
+                break;
             //对t进行修改
 
             case 3://删除
@@ -961,32 +1053,3 @@ main_loop:
 }
 
 
-/*
-
-        break;
-    case 3:
-        printf("注意！此操作不可恢复！\n");
-        printf("1、按照编号删除\n2、按照名称删除\n3、返回\n请输入：");
-        scanf("%d", &temp);
-        switch(temp)
-        {
-        case 1:
-            printf("请输入要删除的书的编号，按回车结束：");
-            scanf("%d", &temp);
-            t = search_by_number(head, temp);
-            head = delete_book(head, t);
-            override_to_file(head);
-            break;
-        case 2:
-            printf("请输入要查找的书的名称，按回车结束：");
-            scanf("%s", name_temp);
-            t = search_by_name(head, name_temp);
-            head = delete_book(head, t);
-            override_to_file(head);
-        default:
-            break;
-        }
-        break;
-
-
-*/
