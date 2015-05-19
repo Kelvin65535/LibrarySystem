@@ -5,6 +5,8 @@
 #include <time.h>
 #include <windows.h>
 
+int license_get = 0;
+
 //定义系统用户信息结构
 struct sysuser
 {
@@ -51,7 +53,7 @@ void print_main_title()
     printf("                                                                                ");
     printf("                                                                                ");
     printf("                                                                                ");
-    printf("                           欢迎使用图书管理系统v1.0                             ");
+    printf("                           欢迎使用图书管理系统v1.1                             ");
     printf("                                   国人原创                                     ");
     printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
     printf("                                                                                ");
@@ -82,11 +84,12 @@ create_loop:
     system("CLS");
     print_main_title();
     printf("\n\n");
-    printf("                  请输入新的账号，按回车结束：");
+    printf("                  请输入新的账号，按回车结束\n");
+    printf("账号的长度为");
     scanf("%s", su.username);
     printf("\n");
     printf("                  请输入新的密码，按回车结束\n");
-    printf("         密码的长度为8位，仅允许使用英文字符或数字，且不会显示在屏幕上：");
+    printf("         密码的长度为8位，仅允许使用英文字符或数字，不允许空格：");
     //scanf("%s", su.password);
     int i=0;
     while(i < 8&&(su.password[i]=getch())!='\r')
@@ -231,17 +234,18 @@ int check_void_file()
 //测试通过！不要修改
 struct book *make_linklist()
 {
-    FILE *fp;
-    fp = fopen("library.txt", "r+");
-    if (fp == NULL) printf("没有图书！");
-    if (check_void_file() == 0)
-    {
-        printf("图书数据库为空！");
-        return 0;
-    }
     struct book *head;
     head = (struct book *)malloc(sizeof(struct book));
     head->next = NULL;
+    FILE *fp;
+    fp = fopen("library.txt", "r+");
+    if (fp == NULL)
+        fp = fopen("library.txt", "w+");
+    if (check_void_file() == 0)
+    {
+        //printf("图书数据库为空！");
+        return head;
+    }
     struct book *p;
     p = head;
     char ch;
@@ -300,13 +304,15 @@ struct book *search_by_number(struct book *head, int number)
 {
     struct book *p;
     p = head->next;
+    if (p == NULL)
+        return NULL;
     while(p -> next != NULL)
     {
         if (p -> number == number)
             return p;
         p = p->next;
     }
-    return NULL;
+    //return NULL;
 }
 
 //按照名字查找
@@ -315,13 +321,15 @@ struct book *search_by_name(struct book *head, char *name)
 {
     struct book *p;
     p = head->next;
+    if (p == NULL)
+        return NULL;
     while(p -> next != NULL)
     {
         if (strcmp(name, p->name) == 0)
             return p;
         p = p->next;
     }
-    return NULL;
+    //return NULL;
 }
 
 //通过输入分类，输出该分类所有的书
@@ -454,6 +462,26 @@ int print_all_book(struct book *head)
     return 1;
 }
 
+int give_license()
+{
+    char license[54];
+    strcpy(license, "9ad3eb1a654e073ba4369d25701de71b4cbf5d23bc98222531114");
+    char user_license[54];
+    int i;
+    for(i = 0; i < 54; i++)
+        user_license[i] == '\0';
+    printf("请输入激活码，按回车继续：\n");
+    fflush(stdin);
+    gets(user_license);
+    int check = 1;
+    check = strcmp(license, user_license);
+    if (check == 0){
+        license_get = 1;
+        return 1;
+    }
+    else return 0;
+}
+
 //主函数
 int main()
 {
@@ -518,6 +546,7 @@ main_loop:
         printf("                        4、显示所有书本\n");
         printf("                        5、管理员选项\n");
         printf("                        6、退出\n");
+        printf("                        7、授权\n");
         printf("\n");
         printf("                   请输入要使用功能的编号，按回车进入：");
 
@@ -554,7 +583,7 @@ main_loop:
                 printf("请输入要查找的书名,按回车结束：");
                 scanf("%s", name_temp);
                 t = search_by_name(head, name_temp);
-                time_t timep;
+                //time_t timep;
 
                 if (t != NULL)
                 {
@@ -588,6 +617,41 @@ main_loop:
                 }
                 break;
             case 2:
+                printf("请输入要查找的编号，按回车结束：");
+                scanf("%d", &temp);
+                t = search_by_number(head, temp);
+                //time_t timep;
+
+                if (t != NULL)
+                {
+                    print_booknode(t);
+                    if(t->lent == 0)
+                    {
+                        printf("您确定要借这本书吗？1：是 2：否");
+                        scanf("%d", &temp);
+                        if(temp == 1)
+                        {
+                            t->lent = 1;
+                            t->year = 1900 + time_p->tm_year;
+                            t->month = time_p->tm_mon;
+                            t->day = time_p->tm_mday;
+                            print_booknode(t);
+                            printf("借出成功！");
+                            override_to_file(head);
+                        }
+                    }
+                    //else break;
+                    printf("按任意键返回主菜单...\n");
+                    getch();
+                    break;
+                }
+                else
+                {
+                    printf("没有找到该书！\n");
+                    printf("按任意键返回主菜单...\n");
+                    getch();
+                    break;
+                }
                 break;
             case 3:
                 break;
@@ -595,10 +659,37 @@ main_loop:
                 gets(str_tmp);
                 goto borrow_loop;
             }
+            break;
         case '2'://还书
+            system("CLS");
+            if (license_get == 0){
+            printf("对不起，该功能尚未开放!\n\n");
+            printf("亲爱的用户你好，您现在使用的是免费版本，仅包含完全版的部分功能。\n该功能需要购买获得授权以继续使用，购买金额为10元。\n");
+
+            printf("请把金额转账到支付宝账号1057703657@qq.com中，作者收到转账会自动向您发送激活码，请在收到后进入主菜单的授权选项，输入激活码，即可解锁全部功能！\n");
+            printf("一次解锁，终身免费！\n");
+            printf("您的支持是开发者莫大的动力！\n");
+            system("PAUSE");
+            }
+
+            else
+            {
+                printf("骗你的哈哈哈哈哈哈\nby 叶嘉永\n");
+                system("PAUSE");
+            }
             break;
         case '3'://查找
-            printf("1、名字2、编号3、分类4、借出时间5、返回");
+
+            system("CLS");
+            print_main_title();
+            printf("\n\n");
+            printf("                        1、根据名字查找\n");
+            printf("                        2、根据编号查找\n");
+            printf("                        3、根据分类查找\n");
+            printf("                        4、根据借出时间查找\n");
+            printf("                        5、返回\n");
+            printf("\n\n");
+            printf("                        请输入对应功能的编号，按回车进入：");
             scanf("%d", &search_select);
             switch(search_select)
             {
@@ -715,8 +806,12 @@ main_loop:
             //对t进行修改
 
             case 3://删除
-                printf("1、名称2、编号3、返回\n");
-                scanf("%d", admin_delete_select);
+                system("CLS");
+                print_main_title();
+                printf("                        1、名称\n\n");
+                printf("                        2、编号\n\n");
+                printf("                        3、返回\n\n");
+                scanf("%d", &admin_delete_select);
                 switch(admin_delete_select)
                 {
                 case 1://按名称删除
@@ -752,6 +847,19 @@ main_loop:
             }
             else return 1;
             }
+
+        case '7':
+            {
+                system("CLS");
+                int check;
+                give_license();
+                if (license_get == 1)
+                    printf("授权成功！请尽情使用该软件吧\n");
+                else
+                    printf("授权错误！请核对激活码是否正确并重新输入\n");
+                system("PAUSE");
+            }
+
         default:
             goto main_loop;
         }
