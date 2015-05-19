@@ -46,20 +46,20 @@ void print_main_title()
 
     if(check_login_success == 0)
     {
-        printf("================================================================================");
+        printf("--------------------------------------------------------------------------------");
         printf("欢迎您，亲爱的用户！\n");
         //printf("                                                                                ");
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.0                             ");
+        printf("                           欢迎使用图书管理系统v2.1                             ");
         printf("                               肝你麻痹起来嗨                                     ");
         printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
         printf("                                                                                ");
-        printf("================================================================================");
+        printf("--------------------------------------------------------------------------------");
     }
     else
     {
-        printf("================================================================================");
+        printf("--------------------------------------------------------------------------------");
         printf("欢迎您，%s！\n",user_name);
         //printf("                                                                                ");
         printf("                                                                                ");
@@ -68,7 +68,7 @@ void print_main_title()
         printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
         printf("                                                                                ");
-        printf("================================================================================");
+        printf("--------------------------------------------------------------------------------");
     }
 
 }
@@ -431,7 +431,9 @@ int search_by_category(struct book *head, char *category)
 void print_booklist_title()
 {
     printf("您查找的书的资料是：\n");
+    printf("--------------------------------------------------------------------------------");
     printf("编号                书名                          分类        借出时间       \n");
+    printf("--------------------------------------------------------------------------------");
 }
 
 void print_booknode(struct book *t)
@@ -459,7 +461,8 @@ void print_booknode(struct book *t)
 //测试成功！
 struct book *delete_book(struct book *head, struct book *p)
 {
-    printf("警告！该操作不可恢复！\n");
+    printf("                           警告！该操作不可恢复！\n\n");
+    printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
     printf("是否继续？\n");
     printf("y：是  任意键：否\n");
     printf("请输入对应选项，按回车继续：");
@@ -491,13 +494,16 @@ int input_new_book()
 input_loop:
     fp = fopen("library.txt", "a+");
     system("ClS");
-    printf("请输入新书的编号：");
+    printf("\n");
+    printf("===================================录入新图书===================================");
+    printf("\n");
+    printf("                        请输入新书的编号：");
     scanf("%d",&newbook.number);
-    printf("请输入新书的名字：");
+    printf("                        请输入新书的名字：");
     fflush(stdin);
     scanf("%[^'\n']",newbook.name);
     fflush(stdin);
-    printf("请输入新书的分类：");
+    printf("                        请输入新书的分类：");
     scanf("%[^'\n']",newbook.category);
     newbook.lent = 0;
     newbook.year = 0;
@@ -509,9 +515,13 @@ input_loop:
     fprintf(fp,"%s\n",newbook.category);
     fprintf(fp,"%d %d %d %d\n",newbook.lent,newbook.year,newbook.month,newbook.day);
     fclose(fp);
-    printf("录入成功！\n");
-    printf("是否继续录入？\n");
-    printf("y：是  n：否\n");
+    printf("\n                        录入成功！\n\n");
+    printf("                        您录入的书本资料如下：\n");
+    printf("                        编号：%d\n", newbook.number);
+    printf("                        书名：%s\n", newbook.name);
+    printf("                        分类：%s\n", newbook.category);
+    printf("\n");
+    printf("                        是否继续录入？ y：是  n：否 ");
     fflush(stdin);
     char ch;
     scanf("%c", &ch);
@@ -519,7 +529,7 @@ input_loop:
         goto input_loop;
     else
     {
-        printf("即将在3秒后返回主菜单...");
+        printf("\n\n即将在3秒后返回主菜单...");
         Sleep(3000);
         return 1;
     }
@@ -530,13 +540,16 @@ input_loop:
 int print_all_book(struct book *head)
 {
     system("CLS");
+    printf("\n");
+    printf("================================显示所有书本====================================");
+    printf("\n");
     char ch;
     struct book *p;
     p = head->next;
     if (p == NULL)
     {
-        printf("数据库中没有书本！\n");
-        printf("                  按任意键返回主菜单...");
+        printf("\n数据库中没有书本！\n\n");
+        printf("                  按任意键返回...");
         ch = getch();
         return 0;
     }
@@ -547,7 +560,7 @@ int print_all_book(struct book *head)
         p = p->next;
     }
     while(p->next != NULL);
-    printf("                  按任意键返回主菜单...");
+    printf("\n按任意键返回...");
     ch = getch();
     return 1;
 }
@@ -565,7 +578,8 @@ int give_license()
     gets(user_license);
     int check = 1;
     check = strcmp(license, user_license);
-    if (check == 0){
+    if (check == 0)
+    {
         license_get = 1;
         return 1;
     }
@@ -579,16 +593,30 @@ struct book *modify_book(struct book *head, struct book *t)
     for(i = 0; i < 30; i++)
         name_temp[i] = '\0';
     i = 0;
+
+    char cate_temp[10];
+    for(i = 0; i < 10; i++)
+        cate_temp[i] = '\0';
+    i = 0;
+
+    int num_temp = 0;
     fflush(stdin);
-    printf("警告！该操作不可修改！\n");
-    printf("1、修改名称\n2、修改编号\n3、什么也不做\n");
+    //system("CLS");
+    //printf("==================================修改图书======================================");
+    //printf("                           警告！该操作不可恢复！\n\n");
+    //printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
+    printf("1、修改名称\n");
+    printf("2、修改编号\n");
+    printf("3、修改分类\n");
+    //printf("4、显示所有书本\n");
+    printf("4、什么也不做\n\n");
     printf("请输入选项前的编号，按回车进入：");
     scanf("%d", &i);
     switch(i)
     {
     case 1:
-        printf("请输入新书的名称：");
         printf("名称需在30个字符以内，一个汉字为两个字符\n");
+        printf("请输入新的名称：");
         fflush(stdin);
         gets(name_temp);
         strcpy(t->name, name_temp);
@@ -596,8 +624,25 @@ struct book *modify_book(struct book *head, struct book *t)
         system("PAUSE");
         return head;
     case 2:
+        printf("编号需全为数字，且在20位以内\n");
+        printf("请输入新的编号：");
+        fflush(stdin);
+        scanf("%d", t->number);
+        printf("修改成功！");
+        system("PAUSE");
         return head;
     case 3:
+        printf("分类需在10个字符以内，一个汉字为两个字符\n");
+        printf("请输入新的分类：");
+        fflush(stdin);
+        gets(cate_temp);
+        strcpy(t->category, cate_temp);
+        printf("修改成功！");
+        system("PAUSE");
+        return head;
+    case 4:
+        return head;
+    default:
         return head;
     }
 }
@@ -690,7 +735,7 @@ main_loop:
         switch(menu_select)
         {
         case '1'://借书
-        borrow_loop:
+borrow_loop:
             system("CLS");
             print_main_title();
             printf("\n\n");
@@ -898,9 +943,9 @@ main_loop:
             system("CLS");
             print_main_title();
             printf("\n\n");
-            printf("                        1、录入新书到数据库\n");
-            printf("                        2、修改已有的书的数据\n");
-            printf("                        3、从数据库中删除书\n");
+            printf("                        1、录入新书到数据库\n\n");
+            printf("                        2、修改已有的书的数据\n\n");
+            printf("                        3、从数据库中删除书\n\n");
             printf("                        4、返回上一级\n");
             printf("\n\n");
             printf("                        请输入对应功能的编号，按回车进入：");
@@ -911,14 +956,20 @@ main_loop:
                 input_new_book();
                 break;
             case 2://修改
+modify_loop:
                 system("CLS");
-                print_main_title();
+                printf("\n");
+                printf("====================================修改图书====================================");
+                printf("\n");
+                printf("                           警告！该操作不可恢复！\n\n");
+                printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
                 printf("\n\n");
                 printf("在这里您可以修改数据库中书的编号、名称、分类和借出时间\n");
                 printf("系统需定位您要修改数据的书：\n");
                 printf("1、输入名称查找\n");
                 printf("2、输入编号查找\n");
-                printf("3、返回\n");
+                printf("3、列出所有书本\n");
+                printf("4、返回\n");
                 printf("请输入对应功能前的编号，按回车继续：");
                 scanf("%d", &modify_select);
                 switch(modify_select)
@@ -944,15 +995,26 @@ main_loop:
                     break;
                 case 2://输入编号
                     break;
+                case 3:
+                    print_all_book(head);
+                    goto modify_loop;
+                    break;
+                case 4:
+                    break;
                 default:
                     break;
                 }
                 break;
-            //对t进行修改
+                //对t进行修改
 
             case 3://删除
                 system("CLS");
-                print_main_title();
+                printf("\n");
+                printf("====================================删除图书====================================");
+                printf("\n");
+                printf("                           警告！该操作不可恢复！\n\n");
+                printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
+                printf("\n\n");
                 printf("\n                           警告！该操作不可恢复！\n\n");
                 printf("                        系统需定位您要删除的书：\n\n");
                 printf("                        1、根据名称查找\n\n");
@@ -966,15 +1028,17 @@ main_loop:
                     system("CLS");
                     printf("                           警告！该操作不可恢复！\n\n");
                     printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
-                    printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
+                    //printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
                     printf("请输入要删除的书的名称，按回车结束：");
                     scanf("%s", name_temp);
+                    /*
                     if (name_temp[0] == '@')
                     {
                         printf("\n\n即将返回主菜单\n");
                         system("PAUSE");
                         break;
                     }
+                    */
                     t = search_by_name(head, name_temp);
                     if (t != NULL)
                     {
@@ -991,15 +1055,17 @@ main_loop:
                     system("CLS");
                     printf("                           警告！该操作不可恢复！\n\n");
                     printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
-                    printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
+                    //printf("如需返回上一级，请输入引号内的“@”字符后按回车继续\n\n");
                     printf("请输入要删除的书的名称，按回车结束：");
                     scanf("%s", name_temp);
+                    /*
                     if (name_temp[0] == '@')
                     {
                         printf("\n\n即将返回主菜单\n");
                         system("PAUSE");
                         break;
                     }
+                    */
                     scanf("%d", &temp);
                     t = search_by_number(head, temp);
                     if (t != NULL)
@@ -1016,12 +1082,12 @@ main_loop:
                 case 3:
                     break;
                 }
-                default:
-                    break;
+            default:
+                break;
             }
             break;
         case '6'://退出
-            {
+        {
             printf("\n");
             printf("                      您确定要退出吗？\n");
             printf("                      按任意键退出，按n返回\n");
@@ -1032,19 +1098,19 @@ main_loop:
                 goto main_loop;
             }
             else return 1;
-            }
+        }
 
         case '7':
-            {
-                system("CLS");
-                int check;
-                give_license();
-                if (license_get == 1)
-                    printf("授权成功！请尽情使用该软件吧\n");
-                else
-                    printf("授权错误！请核对激活码是否正确并重新输入\n");
-                system("PAUSE");
-            }
+        {
+            system("CLS");
+            int check;
+            give_license();
+            if (license_get == 1)
+                printf("授权成功！请尽情使用该软件吧\n");
+            else
+                printf("授权错误！请核对激活码是否正确并重新输入\n");
+            system("PAUSE");
+        }
 
         default:
             goto main_loop;
