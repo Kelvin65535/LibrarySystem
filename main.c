@@ -6,7 +6,6 @@
 #include <windows.h>
 
 //全局变量
-int license_get = 0;
 int check_login_success = 0;//在标题显示用户名称会用到
 char user_name[20];//在标题显示用户名称会用到
 
@@ -48,11 +47,10 @@ void print_main_title()
     {
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，亲爱的用户！\n");
-        //printf("                                                                                ");
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.1                             ");
-        printf("                               肝你麻痹起来嗨                                     ");
-        printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
+        printf("                           欢迎使用图书管理系统v2.2                             ");
+        printf("                                                                                ");
+        printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
         printf("                                                                                ");
         printf("--------------------------------------------------------------------------------");
@@ -61,11 +59,10 @@ void print_main_title()
     {
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，%s！\n",user_name);
-        //printf("                                                                                ");
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v1.3                             ");
-        printf("                                肝你麻痹起来嗨                                     ");
-        printf("                      现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
+        printf("                           欢迎使用图书管理系统v2.2                             ");
+        printf("                                                                                ");
+        printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
         printf("                                                                                ");
         printf("--------------------------------------------------------------------------------");
@@ -487,24 +484,72 @@ struct book *delete_book(struct book *head, struct book *p)
 
 //输入新的书
 //测试通过！不要修改
-int input_new_book()
+int input_new_book(struct book *head)
 {
     FILE *fp;
     struct book newbook;
+    struct book *p;
+    p = head;
+    if (p -> next == NULL)
+    {
+        printf("空链表");
+    }
 input_loop:
     fp = fopen("library.txt", "a+");
     system("ClS");
     printf("\n");
     printf("===================================录入新图书===================================");
     printf("\n");
+input_number_loop:
     printf("                        请输入新书的编号：");
     scanf("%d",&newbook.number);
+    while (p->next != NULL)
+    {
+        if (newbook.number == p->number)
+        {
+            printf("\n                        该书已存在！请核对后重新输入\n                        ");
+            system("PAUSE");
+            printf("\n");
+            goto input_number_loop;
+        }
+        p = p->next;
+    }
+    p = head;
+    printf("\n");
+input_name_loop:
     printf("                        请输入新书的名字：");
     fflush(stdin);
     scanf("%[^'\n']",newbook.name);
+    while (p->next != NULL)
+    {
+        if (strcmp(p->name, newbook.name) == 0)
+        {
+            printf("\n                        该书已存在！请核对后重新输入\n                        ");
+            system("PAUSE");
+            printf("\n");
+            goto input_name_loop;
+        }
+        p = p->next;
+    }
+    p = head;
     fflush(stdin);
+    printf("\n");
+input_category_loop:
     printf("                        请输入新书的分类：");
     scanf("%[^'\n']",newbook.category);
+    while (p->next != NULL)
+    {
+        if (strcmp(p->category, newbook.category) == 0)
+        {
+            printf("                        该书已存在！请核对后重新输入\n                        ");
+            system("PAUSE");
+            printf("\n");
+            goto input_name_loop;
+        }
+        p = p->next;
+    }
+    p = head;
+
     newbook.lent = 0;
     newbook.year = 0;
     newbook.month = 0;
@@ -565,26 +610,6 @@ int print_all_book(struct book *head)
     return 1;
 }
 
-int give_license()
-{
-    char license[54];
-    strcpy(license, "9ad3eb1a654e073ba4369d25701de71b4cbf5d23bc98222531114");
-    char user_license[54];
-    int i;
-    for(i = 0; i < 54; i++)
-        user_license[i] == '\0';
-    printf("请输入激活码，按回车继续：\n");
-    fflush(stdin);
-    gets(user_license);
-    int check = 1;
-    check = strcmp(license, user_license);
-    if (check == 0)
-    {
-        license_get = 1;
-        return 1;
-    }
-    else return 0;
-}
 
 struct book *modify_book(struct book *head, struct book *t)
 {
@@ -657,10 +682,10 @@ int main()
 loop:
     print_main_title();
     printf("\n\n");
-    printf("                        1、注册新用户\n");
-    printf("                        2、登录\n");
-    printf("                        3、关于\n");
-    printf("                        4、退出\n");
+    printf("                               1、注册新用户\n\n");
+    printf("                               2、登录\n\n");
+    printf("                               3、关于\n\n");
+    printf("                               4、退出\n\n");
     printf("\n\n");
     printf("                      请输入选项前的编号，按回车键结束：");
     scanf("%c",&login_temp);
@@ -706,16 +731,15 @@ loop:
 main_loop:
         system("CLS");
         print_main_title();
-        printf("\n\n");
-        printf("                        1、借书\n");
-        printf("                        2、还书\n");
-        printf("                        3、查找\n");
-        printf("                        4、显示所有书本\n");
-        printf("                        5、管理员选项\n");
-        printf("                        6、退出\n");
-        //printf("                        7、授权\n");
         printf("\n");
-        printf("                   请输入要使用功能的编号，按回车进入：");
+        printf("                                1、借书\n\n");
+        printf("                                2、还书\n\n");
+        printf("                                3、查找\n\n");
+        printf("                                4、显示所有书本\n\n");
+        printf("                                5、管理员选项\n\n");
+        printf("                                6、退出\n");
+        printf("\n");
+        printf("                       请输入要使用功能的编号，按回车进入：");
 
         scanf("%c", &menu_select);
 
@@ -739,15 +763,16 @@ borrow_loop:
             system("CLS");
             print_main_title();
             printf("\n\n");
-            printf("                        1、根据名字查找\n\n");
-            printf("                        2、根据编号查找\n\n");
+            printf("                        系统需要定位您要借的书：\n\n");
+            printf("                        1、请在此输入书的名字\n\n");
+            printf("                        2、请在此输入书的编号\n\n");
             printf("                        3、返回\n\n");
-            printf("                        请输入对应功能的编号，按回车进入：");
+            printf("                        请输入对应选项的编号，按回车进入：");
             scanf("%d", &borrow_select);
             switch(borrow_select)
             {
             case 1:
-                printf("请输入要查找的书名,按回车结束：");
+                printf("请输入书名,按回车结束：");
                 scanf("%s", name_temp);
                 t = search_by_name(head, name_temp);
                 //time_t timep;
@@ -786,7 +811,7 @@ borrow_loop:
                 }
                 break;
             case 2:
-                printf("请输入要查找的编号，按回车结束：");
+                printf("请输入书的编号，按回车结束：");
                 scanf("%d", &temp);
                 t = search_by_number(head, temp);
                 //time_t timep;
@@ -831,31 +856,13 @@ borrow_loop:
             break;
         case '2'://还书
             system("CLS");
-            /*
-            if (license_get == 0){
-            printf("对不起，该功能尚未开放!\n\n");
-            printf("亲爱的用户你好，您现在使用的是免费版本，仅包含完全版的部分功能。\n该功能需要购买获得授权以继续使用，购买金额为10元。\n");
-
-            printf("请把金额转账到支付宝账号1057703657@qq.com中，作者收到转账会自动向您发送激活码，请在收到后进入主菜单的授权选项，输入激活码，即可解锁全部功能！\n");
-            printf("一次解锁，终身免费！\n");
-            printf("您的支持是开发者莫大的动力！\n");
-            system("PAUSE");
-            }
-
-            else
-            {
-                printf("骗你的哈哈哈哈哈哈\nby 叶嘉永\n");
-                system("PAUSE");
-            }
-            */
-            system("CLS");
-            printf("该功能还在调试中......\n\n\n\n");
-
-            printf("系统需要定位您要还的书：\n");
-            printf("1、根据书名查找\n");
-            printf("2、根据编号查找\n");
-            printf("3、返回上一级\n");
-            printf("请输入对应功能前的编号，按回车继续：");
+            print_main_title();
+            printf("\n\n");
+            printf("                        系统需要定位您要还的书：\n\n");
+            printf("                        1、请在此输入书的名字\n\n");
+            printf("                        2、请在此输入书的编号\n\n");
+            printf("                        3、返回上一级\n\n");
+            printf("                        请输入对应功能前的编号，按回车继续：");
 
             scanf("%d", &back_select);
 
@@ -952,9 +959,11 @@ borrow_loop:
             scanf("%d", &admin_select);
             switch(admin_select)
             {
+
             case 1://录入
-                input_new_book();
+                input_new_book(head);
                 break;
+
             case 2://修改
 modify_loop:
                 system("CLS");
@@ -1098,18 +1107,6 @@ modify_loop:
                 goto main_loop;
             }
             else return 1;
-        }
-
-        case '7':
-        {
-            system("CLS");
-            int check;
-            give_license();
-            if (license_get == 1)
-                printf("授权成功！请尽情使用该软件吧\n");
-            else
-                printf("授权错误！请核对激活码是否正确并重新输入\n");
-            system("PAUSE");
         }
 
         default:
