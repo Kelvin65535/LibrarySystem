@@ -48,7 +48,7 @@ void print_main_title()
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，亲爱的用户！\n");
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.2                             ");
+        printf("                           欢迎使用图书管理系统v2.3                             ");
         printf("                                                                                ");
         printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
@@ -60,7 +60,7 @@ void print_main_title()
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，%s！\n",user_name);
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.2                             ");
+        printf("                           欢迎使用图书管理系统v2.3                             ");
         printf("                                                                                ");
         printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
@@ -499,6 +499,11 @@ input_loop:
     system("ClS");
     printf("\n");
     printf("===================================录入新图书===================================");
+    printf("\n\n    请注意：编号要求为30位以内的纯数字\n\n");
+    printf("            名字要求为30个英文字符以内，可包括空格，一个汉字按两个字符计算\n\n");
+    printf("            名字要求为10个英文字符以内，可包括空格，一个汉字按两个字符计算\n");
+    printf("\n");
+    printf("================================================================================");
     printf("\n");
 input_number_loop:
     printf("                        请输入新书的编号：");
@@ -761,8 +766,9 @@ main_loop:
         case '1'://借书
 borrow_loop:
             system("CLS");
-            print_main_title();
-            printf("\n\n");
+            printf("\n");
+            printf("======================================借书======================================");
+            printf("\n");
             printf("                        系统需要定位您要借的书：\n\n");
             printf("                        1、请在此输入书的名字\n\n");
             printf("                        2、请在此输入书的编号\n\n");
@@ -772,7 +778,8 @@ borrow_loop:
             switch(borrow_select)
             {
             case 1:
-                printf("请输入书名,按回车结束：");
+                printf("\n\n");
+                printf("                        请输入书名,按回车结束：");
                 scanf("%s", name_temp);
                 t = search_by_name(head, name_temp);
                 //time_t timep;
@@ -780,11 +787,16 @@ borrow_loop:
                 if (t != NULL)
                 {
                     system("CLS");
+                    printf("\n");
+                    printf("======================================借书======================================");
+                    printf("\n\n");
+
                     print_booklist_title();
                     print_booknode(t);
                     if(t->lent == 0)
                     {
-                        printf("您确定要借这本书吗？1：是 2：否");
+                        printf("\n\n");
+                        printf("                        您确定要借这本书吗？1：是 2：否");
                         scanf("%d", &temp);
                         if(temp == 1)
                         {
@@ -793,35 +805,52 @@ borrow_loop:
                             t->month = time_p->tm_mon;
                             t->day = time_p->tm_mday;
                             //print_booknode(t);
-                            printf("借出成功！");
+                            printf("\n\n");
+                            printf("                        借出成功！");
                             override_to_file(head);
+                            system("PAUSE");
+                            goto borrow_loop;
+                            break;
                         }
                     }
                     //else break;
-                    printf("按任意键返回主菜单...\n");
-                    getch();
+                    printf("\n\n\n");
+                    printf("                    错误：该书已经借出！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto borrow_loop;
                     break;
                 }
                 else
                 {
-                    printf("没有找到该书！\n");
-                    printf("按任意键返回主菜单...\n");
-                    getch();
+                    printf("\n\n\n");
+                    printf("                    错误：没有找到该书！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto borrow_loop;
                     break;
                 }
                 break;
             case 2:
-                printf("请输入书的编号，按回车结束：");
+                printf("\n\n");
+                printf("                    请输入书的编号，按回车结束：");
                 scanf("%d", &temp);
                 t = search_by_number(head, temp);
                 //time_t timep;
 
                 if (t != NULL)
                 {
+                    system("CLS");
+                    printf("\n");
+                    printf("======================================借书======================================");
+                    printf("\n\n");
+
+                    print_booklist_title();
                     print_booknode(t);
                     if(t->lent == 0)
                     {
-                        printf("您确定要借这本书吗？1：是 2：否");
+                        printf("\n\n");
+                        printf("                        您确定要借这本书吗？1：是 2：否");
                         scanf("%d", &temp);
                         if(temp == 1)
                         {
@@ -829,21 +858,30 @@ borrow_loop:
                             t->year = 1900 + time_p->tm_year;
                             t->month = time_p->tm_mon;
                             t->day = time_p->tm_mday;
-                            print_booknode(t);
-                            printf("借出成功！");
+
+                            printf("\n\n");
+                            printf("                        借出成功！");
                             override_to_file(head);
+                            system("PAUSE");
+                            goto borrow_loop;
+                            break;
                         }
                     }
                     //else break;
-                    printf("按任意键返回主菜单...\n");
-                    getch();
+                    printf("\n\n\n");
+                    printf("                    错误：该书已经借出！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto borrow_loop;
                     break;
                 }
                 else
                 {
-                    printf("没有找到该书！\n");
-                    printf("按任意键返回主菜单...\n");
-                    getch();
+                    printf("\n\n\n");
+                    printf("                    错误：没有找到该书！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto borrow_loop;
                     break;
                 }
                 break;
@@ -855,9 +893,11 @@ borrow_loop:
             }
             break;
         case '2'://还书
+        back_loop:
             system("CLS");
-            print_main_title();
-            printf("\n\n");
+            printf("\n");
+            printf("======================================还书======================================");
+            printf("\n");
             printf("                        系统需要定位您要还的书：\n\n");
             printf("                        1、请在此输入书的名字\n\n");
             printf("                        2、请在此输入书的编号\n\n");
@@ -869,8 +909,110 @@ borrow_loop:
             switch(back_select)
             {
             case 1://书名
+                printf("\n\n");
+                printf("                        请输入书名,按回车结束：");
+                scanf("%s", name_temp);
+                t = search_by_name(head, name_temp);
+
+                if (t != NULL)
+                {
+                    system("CLS");
+                    printf("\n");
+                    printf("======================================还书======================================");
+                    printf("\n\n");
+
+                    print_booklist_title();
+                    print_booknode(t);
+                    if(t->lent == 1)
+                    {
+                        printf("\n\n");
+                        printf("                        您确定要还这本书吗？1：是 2：否");
+                        scanf("%d", &temp);
+                        if(temp == 1)
+                        {
+                            t->lent = 0;
+                            t->year = 0;
+                            t->month = 0;
+                            t->day = 0;
+
+                            printf("\n\n");
+                            printf("                        还书成功！");
+                            override_to_file(head);
+                            system("PAUSE");
+                            goto back_loop;
+                            break;
+                        }
+                    }
+                    //else
+                    printf("\n\n\n");
+                    printf("                    错误：该书已经在库！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto back_loop;
+                    break;
+                }
+                else
+                {
+                    printf("\n\n\n");
+                    printf("                    错误：没有找到该书！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto back_loop;
+                    break;
+                }
                 break;
             case 2://编号
+                printf("\n\n");
+                printf("                        请输入编号，按回车结束：");
+                scanf("%d", &temp);
+                t = search_by_number(head, temp);
+
+                if (t != NULL)
+                {
+                    system("CLS");
+                    printf("\n");
+                    printf("======================================还书======================================");
+                    printf("\n\n");
+
+                    print_booklist_title();
+                    print_booknode(t);
+                    if(t->lent == 1)
+                    {
+                        printf("\n\n");
+                        printf("                        您确定要还这本书吗？1：是 2：否");
+                        scanf("%d", &temp);
+                        if(temp == 1)
+                        {
+                            t->lent = 0;
+                            t->year = 0;
+                            t->month = 0;
+                            t->day = 0;
+                            //print_booknode(t);
+                            printf("\n\n");
+                            printf("                        还书成功！");
+                            override_to_file(head);
+                            system("PAUSE");
+                            goto back_loop;
+                            break;
+                        }
+                    }
+                    //else
+                    printf("\n\n\n");
+                    printf("                    错误：该书已经在库！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto back_loop;
+                    break;
+                }
+                else
+                {
+                    printf("\n\n\n");
+                    printf("                    错误：没有找到该书！请核对后再重新输入\n\n");
+                    printf("                    如需帮助，请联系工作人员\n\n                    ");
+                    system("PAUSE");
+                    goto back_loop;
+                    break;
+                }
                 break;
             default:
                 break;
@@ -882,9 +1024,9 @@ borrow_loop:
             system("CLS");
             print_main_title();
             printf("\n\n");
-            printf("                        1、根据名字查找\n");
-            printf("                        2、根据编号查找\n");
-            printf("                        3、根据分类查找\n");
+            printf("                        1、根据名字查找\n\n");
+            printf("                        2、根据编号查找\n\n");
+            printf("                        3、根据分类查找\n\n");
             printf("                        4、根据借出时间查找\n");
             printf("                        5、返回\n");
             printf("\n\n");
@@ -972,20 +1114,20 @@ modify_loop:
                 printf("\n");
                 printf("                           警告！该操作不可恢复！\n\n");
                 printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
-                printf("\n\n");
-                printf("在这里您可以修改数据库中书的编号、名称、分类和借出时间\n");
-                printf("系统需定位您要修改数据的书：\n");
-                printf("1、输入名称查找\n");
-                printf("2、输入编号查找\n");
-                printf("3、列出所有书本\n");
-                printf("4、返回\n");
-                printf("请输入对应功能前的编号，按回车继续：");
+                printf("\n");
+                printf("           在这里您可以修改数据库中书的编号、名称、分类和借出时间\n\n");
+                printf("                        系统需定位您要修改数据的书：\n\n");
+                printf("                        1、在此输入书的名称\n\n");
+                printf("                        2、在此输入书的编号\n\n");
+                printf("                        3、列出所有书本\n\n");
+                printf("                        4、返回\n\n");
+                printf("                请输入对应选项的编号，按回车继续：");
                 scanf("%d", &modify_select);
                 switch(modify_select)
                 {
                 case 1://输入名称
                     fflush(stdin);
-                    printf("请输入要查找的书的名称，按回车结束：");
+                    printf("请输入书的名称，按回车结束：");
                     scanf("%d", &temp);
                     t = search_by_number(head, temp);
                     if (t == NULL)
@@ -1024,7 +1166,7 @@ modify_loop:
                 printf("                           警告！该操作不可恢复！\n\n");
                 printf("                        WARNING!THIS CAN'T BE UNDONE!!\n\n");
                 printf("\n\n");
-                printf("\n                           警告！该操作不可恢复！\n\n");
+                printf("\n\n");
                 printf("                        系统需定位您要删除的书：\n\n");
                 printf("                        1、根据名称查找\n\n");
                 printf("                        2、根据编号查找\n\n");
