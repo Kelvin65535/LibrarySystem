@@ -30,10 +30,6 @@ struct book
 };
 
 
-void save_to_file(FILE *fp, struct book *head);
-struct book *search_by_number(struct book *head, int number);
-int search_by_category(struct book *head, char *category);
-
 //主标题
 //测试成功
 void print_main_title()
@@ -48,7 +44,7 @@ void print_main_title()
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，亲爱的用户！\n");
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.3                             ");
+        printf("                           欢迎使用图书管理系统v2.4                             ");
         printf("                                                                                ");
         printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, 1 + p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
@@ -60,7 +56,7 @@ void print_main_title()
         printf("--------------------------------------------------------------------------------");
         printf("欢迎您，%s！\n",user_name);
         printf("                                                                                ");
-        printf("                           欢迎使用图书管理系统v2.3                             ");
+        printf("                           欢迎使用图书管理系统v2.4                             ");
         printf("                                                                                ");
         printf("                        现在时间：%d年%d月%d日 %d:%d:%d\n", 1900 + p->tm_year, p->tm_mon, p->tm_mday, 8 + p->tm_hour, p->tm_min, p->tm_sec);
         printf("                                                                                ");
@@ -374,6 +370,27 @@ struct book *search_by_number(struct book *head, int number)
         p = p->next;
     }
     //return NULL;
+}
+
+struct book *search_by_time(struct book *head, int year, int month, int day)
+{
+    int flag = 0;
+    struct book *p;
+    p = head->next;
+    if (p == NULL)
+        flag = 0;
+    while(p -> next != NULL)
+    {
+        if ((p->year == year) && (p->month == month) && (p->day == day))
+            {
+                print_booknode(p);
+                flag = 1;
+            }
+        p = p->next;
+    }
+    if (flag == 0)
+        printf("没有找到书本！\n");
+    system("PAUSE");
 }
 
 //按照名字查找
@@ -761,6 +778,10 @@ main_loop:
         time(&timep);
         time_p = gmtime(&timep);
 
+        int year = 0;
+        int month = 0;
+        int day = 0;
+
         switch(menu_select)
         {
         case '1'://借书
@@ -1027,7 +1048,7 @@ borrow_loop:
             printf("                        1、根据名字查找\n\n");
             printf("                        2、根据编号查找\n\n");
             printf("                        3、根据分类查找\n\n");
-            printf("                        4、根据借出时间查找\n");
+            printf("                        4、根据借出时间查找\n\n");
             printf("                        5、返回\n");
             printf("\n\n");
             printf("                        请输入对应功能的编号，按回车进入：");
@@ -1074,11 +1095,24 @@ borrow_loop:
                 }
                 break;
             case 3://根据分类
+                system("CLS");
                 printf("请输入要查找的分类,按回车结束：");
                 scanf("%s", category_temp);
                 search_by_category(head, category_temp);
                 break;
             case 4://根据借出时间
+                system("CLS");
+                printf("\n");
+                printf("================================根据借出时间查找================================");
+                printf("\n");
+                printf("\n请输入要查找的书本的借出年份,按回车结束：");
+                scanf("%d", &year);
+                printf("\n请输入月份,按回车结束：");
+                scanf("%d", &month);
+                printf("\n请输入日期,按回车结束：");
+                scanf("%d", &day);
+                printf("\n\n");
+                search_by_time(head, year, month, day);
                 break;
             default://返回上一级
                 break;
